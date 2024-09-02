@@ -3,108 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MetaMask Transaction Example</title>
+    <title>MetaMask Test</title>
     <script src="https://unpkg.com/ethers@5.7.0/dist/ethers.umd.min.js"></script>
 </head>
 <body>
-    <h1>MetaMask Transaction Test</h1>
+    <h1>MetaMask Test</h1>
     <button id="connectButton">Connect Wallet</button>
     <p id="walletAddress"></p>
-    <p id="walletBalance"></p>
-    <p id="bnbEthBalance"></p>
-    <p id="websiteTokenBalance"></p>
-
-    <h2>Send Token</h2>
-    <form id="sendTokenForm">
-        <label for="recipientAddress">Recipient Address:</label>
-        <input type="text" id="recipientAddress" required>
-        <br>
-        <label for="amount">Amount to Send:</label>
-        <input type="number" id="amount" step="0.01" required>
-        <br>
-        <button type="submit">Send</button>
-    </form>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof window.ethers !== 'undefined') {
-                const ethers = window.ethers;
-
-                // Token contract addresses and ABI
-                const bnbEthTokenAddress = '0x9031FFe14632e5954AB4aC45049C1C0636fD3681'; // Replace with your BNB ETH token address
-                const websiteTokenAddress = '0x2174A5Dc77e655b4C89A0562C610876F23C81F39'; // Your new ERC20 token address
-
-                // ERC20 Token ABI fragment
-                const tokenABI = [
-                    "function balanceOf(address owner) view returns (uint256)",
-                    "function transfer(address to, uint256 amount) returns (bool)"
-                ];
-
-                document.getElementById('connectButton').addEventListener('click', async () => {
-                    if (window.ethereum) {
-                        try {
-                            const provider = new ethers.providers.Web3Provider(window.ethereum);
-                            await provider.send("eth_requestAccounts", []);
-                            const signer = provider.getSigner();
-                            const account = await signer.getAddress();
-                            document.getElementById('walletAddress').innerText = `Connected Wallet: ${account}`;
-                            
-                            // Get ETH balance
-                            const balance = await provider.getBalance(account);
-                            const balanceInEther = ethers.utils.formatEther(balance);
-                            document.getElementById('walletBalance').innerText = `ETH Balance: ${balanceInEther} ETH`;
-
-                            // Get BNB ETH token balance
-                            const bnbEthTokenContract = new ethers.Contract(bnbEthTokenAddress, tokenABI, provider);
-                            const bnbEthBalance = await bnbEthTokenContract.balanceOf(account);
-                            const bnbEthBalanceInEther = ethers.utils.formatEther(bnbEthBalance);
-                            document.getElementById('bnbEthBalance').innerText = `BNB ETH Balance: ${bnbEthBalanceInEther} BNB ETH`;
-
-                            // Get Website token balance
-                            const websiteTokenContract = new ethers.Contract(websiteTokenAddress, tokenABI, provider);
-                            const websiteTokenBalance = await websiteTokenContract.balanceOf(account);
-                            const websiteTokenBalanceInEther = ethers.utils.formatEther(websiteTokenBalance);
-                            document.getElementById('websiteTokenBalance').innerText = `Website Token Balance: ${websiteTokenBalanceInEther} Website`;
-
-                        } catch (error) {
-                            console.error("MetaMask Error:", error);
-                            document.getElementById('walletAddress').innerText = 'Error connecting to MetaMask.';
-                        }
-                    } else {
-                        document.getElementById('walletAddress').innerText = 'MetaMask is not installed!';
-                    }
-                });
-
-                document.getElementById('sendTokenForm').addEventListener('submit', async (event) => {
-                    event.preventDefault();
-                    if (window.ethereum) {
-                        try {
-                            const provider = new ethers.providers.Web3Provider(window.ethereum);
-                            const signer = provider.getSigner();
-                            const recipient = document.getElementById('recipientAddress').value;
-                            const amount = ethers.utils.parseUnits(document.getElementById('amount').value, 18); // Assuming 18 decimal places
-
-                            const websiteTokenContract = new ethers.Contract(websiteTokenAddress, tokenABI, signer);
-                            const tx = await websiteTokenContract.transfer(recipient, amount);
-                            await tx.wait(); // Wait for transaction to be mined
-
-                            alert('Transaction successful!');
-                            // Refresh token balance
-                            const websiteTokenBalance = await websiteTokenContract.balanceOf(await signer.getAddress());
-                            const websiteTokenBalanceInEther = ethers.utils.formatEther(websiteTokenBalance);
-                            document.getElementById('websiteTokenBalance').innerText = `Website Token Balance: ${websiteTokenBalanceInEther} Website`;
-
-                        } catch (error) {
-                            console.error("Transaction Error:", error);
-                            alert('Transaction failed!');
-                        }
-                    } else {
-                        alert('MetaMask is not installed!');
-                    }
-                });
+        document.getElementById('connectButton').addEventListener('click', async () => {
+            if (window.ethereum) {
+                try {
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    await provider.send("eth_requestAccounts", []);
+                    const signer = provider.getSigner();
+                    const account = await signer.getAddress();
+                    document.getElementById('walletAddress').innerText = `Connected Wallet: ${account}`;
+                } catch (error) {
+                    console.error("MetaMask Error:", error);
+                    document.getElementById('walletAddress').innerText = 'Error connecting to MetaMask.';
+                }
             } else {
-                console.error("Ethers library is not loaded.");
-                document.getElementById('walletAddress').innerText = 'Ethers library is not loaded.';
+                document.getElementById('walletAddress').innerText = 'MetaMask is not installed!';
             }
         });
     </script>
